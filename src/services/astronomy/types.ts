@@ -1,7 +1,7 @@
 import { Constellation } from '../ar/types';
 
-export interface NASAApiClient {
-  getAPOD(): Promise<APODResponse>;
+export interface IStarDatabaseClient {
+  queryVisibleConstellations(skyPosition: any): Promise<Constellation[]>;
 }
 
 export interface IStarDatabaseClient {
