@@ -1,3 +1,5 @@
+import { Constellation } from '../ar/types';
+
 export interface NASAApiClient {
   getAPOD(): Promise<APODResponse>;
 }
