@@ -17,7 +17,6 @@ export const Colors = {
   },
 };
 
-// Space-specific palette — always dark regardless of device theme
 export const Space = {
   background: '#080B1A',
   card: '#0F1329',
