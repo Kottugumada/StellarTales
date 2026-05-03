@@ -24,8 +24,8 @@ export function useSkyObjects(): SkyState {
 
   useEffect(() => {
     async function load() {
-      // Initialize DB (idempotent — safe to call every launch)
-      initDatabase();
+      // Copy bundled DB to device on first launch (no-op on subsequent launches)
+      await initDatabase();
 
       let lat = DEFAULT_LAT;
       let lon = DEFAULT_LON;

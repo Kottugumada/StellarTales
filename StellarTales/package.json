@@ -7,6 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build:db": "node scripts/buildDatabase.js",
     "postinstall": "node -e \"const fs=require('fs'),path=require('path');const d='node_modules/@expo/metro/node_modules';if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});const link=path.join(d,'metro-runtime'),target='../../../metro-runtime';try{fs.symlinkSync(target,link)}catch(e){if(e.code!=='EEXIST')throw e};\""
   },
   "dependencies": {
@@ -15,9 +16,11 @@
     "@react-navigation/native": "^7.2.2",
     "astronomy-engine": "^2.1.19",
     "expo": "~54.0.33",
+    "expo-asset": "^55.0.16",
     "expo-av": "~16.0.8",
     "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.13",
+    "expo-file-system": "^55.0.17",
     "expo-font": "~14.0.11",
     "expo-haptics": "~15.0.8",
     "expo-linking": "~8.0.12",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "better-sqlite3": "^12.9.0",
     "typescript": "~5.9.2"
   },
   "private": true
