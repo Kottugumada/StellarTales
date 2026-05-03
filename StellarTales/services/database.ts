@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { ANCHOR_OBJECTS, CultureKey } from '../data/anchorObjects';
 import { SEED_STORIES } from '../data/seedStories';
+import { GENERATED_STORIES } from '../data/generatedStories';
 
 export interface StoryRow {
   objectId: string;
@@ -73,9 +74,23 @@ function seedObjectsIfEmpty(db: SQLite.SQLiteDatabase): void {
 
 function seedStoriesIfEmpty(db: SQLite.SQLiteDatabase): void {
   const count = db.getFirstSync<{ n: number }>('SELECT COUNT(*) as n FROM stories');
-  if (count && count.n > 0) return;
+  // Re-seed whenever we have fewer stories than the full generated set (handles upgrades too)
+  if (count && count.n >= 360) return;
 
+  // Insert hand-crafted stories first — INSERT OR IGNORE means they always win on conflict
   for (const [objectId, cultures] of Object.entries(SEED_STORIES)) {
+    if (!cultures) continue;
+    for (const [culture, story] of Object.entries(cultures)) {
+      if (!story) continue;
+      db.runSync(
+        'INSERT OR IGNORE INTO stories (object_id, culture, title, body) VALUES (?, ?, ?, ?)',
+        [objectId, culture, story.title, story.body],
+      );
+    }
+  }
+
+  // Insert generated stories — any already seeded by hand-crafted pass are skipped
+  for (const [objectId, cultures] of Object.entries(GENERATED_STORIES)) {
     if (!cultures) continue;
     for (const [culture, story] of Object.entries(cultures)) {
       if (!story) continue;
