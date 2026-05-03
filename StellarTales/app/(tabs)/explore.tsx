@@ -5,7 +5,7 @@ export default function ExploreScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Explore</Text>
-      <Text style={styles.body}>Browse all 60 sky objects — coming soon.</Text>
+      <Text style={styles.body}>Browse sky objects — coming soon.</Text>
     </View>
   );
 }
