@@ -9,7 +9,6 @@ import {
 import { CultureKey } from '../data/anchorObjects';
 import { VisibleSkyObject } from '../services/skyEngine';
 import { useStory } from '../hooks/useStory';
-import { getAudioPath } from '../services/database';
 import { CultureSelector } from './CultureSelector';
 import { AudioPlayer } from './AudioPlayer';
 import { Space } from '../constants/Colors';
@@ -33,7 +32,6 @@ export function StoryCard({ object, onDeepDive }: Props) {
   const { stories, loading, fetching, getOrFetchStory } = useStory(object);
 
   const story = stories[selectedCulture];
-  const audioPath = story ? getAudioPath(object.id, selectedCulture) : null;
 
   function handleCultureSelect(culture: CultureKey) {
     setSelectedCulture(culture);
@@ -88,7 +86,7 @@ export function StoryCard({ object, onDeepDive }: Props) {
 
       {/* Audio player */}
       <View style={styles.audioRow}>
-        <AudioPlayer filePath={audioPath} />
+        <AudioPlayer text={story?.body ?? null} />
       </View>
 
       {/* Culture selector */}

@@ -1,90 +1,129 @@
-import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Space } from '../constants/Colors';
 
 interface Props {
-  filePath: string | null; // local file URI or null if not cached
+  text: string | null; // story body to read aloud; null = no story loaded yet
 }
 
 type PlayState = 'idle' | 'loading' | 'playing' | 'paused';
 
-export function AudioPlayer({ filePath }: Props) {
-  const soundRef = useRef<Audio.Sound | null>(null);
+export function AudioPlayer({ text }: Props) {
   const [playState, setPlayState] = useState<PlayState>('idle');
-  const [position, setPosition] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const elapsedRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [elapsed, setElapsed] = useState(0);
 
-  // Unload sound when filePath changes or component unmounts
+  // Stop speech and clear timer when text changes or component unmounts
   useEffect(() => {
     return () => {
-      soundRef.current?.unloadAsync();
-      soundRef.current = null;
-      setPlayState('idle');
-      setPosition(0);
-      setDuration(0);
+      Speech.stop();
+      clearTimer();
     };
-  }, [filePath]);
+  }, [text]);
 
-  async function handlePress() {
-    if (!filePath) return;
+  function startTimer() {
+    timerRef.current = setInterval(() => {
+      elapsedRef.current += 1;
+      setElapsed(elapsedRef.current);
+    }, 1000);
+  }
 
-    if (playState === 'playing') {
-      await soundRef.current?.pauseAsync();
-      setPlayState('paused');
-      return;
-    }
-
-    if (playState === 'paused') {
-      await soundRef.current?.playAsync();
-      setPlayState('playing');
-      return;
-    }
-
-    // Load fresh
-    setPlayState('loading');
-    try {
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: filePath },
-        { shouldPlay: true },
-        (status) => {
-          if (!status.isLoaded) return;
-          setPosition(status.positionMillis);
-          setDuration(status.durationMillis ?? 0);
-          if (status.didJustFinish) {
-            setPlayState('idle');
-            setPosition(0);
-          }
-        },
-      );
-      soundRef.current = sound;
-      setPlayState('playing');
-    } catch {
-      setPlayState('idle');
+  function clearTimer() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
   }
 
-  const formatTime = (ms: number) => {
-    const s = Math.floor(ms / 1000);
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  };
+  async function handlePress() {
+    if (!text) return;
 
-  const hasAudio = !!filePath;
-  const icon = playState === 'playing' ? '⏸' : '▶';
-  const timeLabel =
-    duration > 0
-      ? `${formatTime(position)} / ${formatTime(duration)}`
-      : hasAudio
-      ? 'Tap to listen'
-      : 'Audio coming soon';
+    // Pause (iOS supports native pause; Android: stop and restart isn't great, so just stop)
+    if (playState === 'playing') {
+      if (Platform.OS === 'ios') {
+        await Speech.pause();
+        clearTimer();
+        setPlayState('paused');
+      } else {
+        await Speech.stop();
+        clearTimer();
+        elapsedRef.current = 0;
+        setElapsed(0);
+        setPlayState('idle');
+      }
+      return;
+    }
+
+    // Resume (iOS only)
+    if (playState === 'paused' && Platform.OS === 'ios') {
+      await Speech.resume();
+      startTimer();
+      setPlayState('playing');
+      return;
+    }
+
+    // Start fresh
+    setPlayState('loading');
+    elapsedRef.current = 0;
+    setElapsed(0);
+
+    Speech.speak(text, {
+      language: 'en-US',
+      rate: 0.9,   // slightly slower than default — easier to follow
+      pitch: 1.0,
+      onStart: () => {
+        setPlayState('playing');
+        startTimer();
+      },
+      onDone: () => {
+        clearTimer();
+        elapsedRef.current = 0;
+        setElapsed(0);
+        setPlayState('idle');
+      },
+      onStopped: () => {
+        clearTimer();
+        setPlayState('idle');
+      },
+      onError: () => {
+        clearTimer();
+        setPlayState('idle');
+      },
+    });
+  }
+
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+  const hasText = !!text;
+  const isPlaying = playState === 'playing';
+  const icon = isPlaying ? '⏸' : playState === 'paused' ? '▶' : '▶';
+
+  const label = !hasText
+    ? 'Story loading…'
+    : playState === 'loading'
+    ? 'Starting…'
+    : isPlaying
+    ? `Listening  ${formatTime(elapsed)}`
+    : playState === 'paused'
+    ? `Paused  ${formatTime(elapsed)}`
+    : 'Tap to listen';
 
   return (
     <View style={styles.row}>
       <TouchableOpacity
-        style={[styles.button, !hasAudio && styles.buttonDisabled]}
+        style={[styles.button, !hasText && styles.buttonDisabled]}
         onPress={handlePress}
-        disabled={!hasAudio || playState === 'loading'}
+        disabled={!hasText || playState === 'loading'}
         activeOpacity={0.8}
       >
         {playState === 'loading' ? (
@@ -95,12 +134,12 @@ export function AudioPlayer({ filePath }: Props) {
       </TouchableOpacity>
 
       <View style={styles.progressContainer}>
-        <Text style={[styles.timeLabel, !hasAudio && styles.timeLabelMuted]}>
-          {timeLabel}
-        </Text>
-        {duration > 0 && (
+        <Text style={[styles.label, !hasText && styles.labelMuted]}>{label}</Text>
+        {isPlaying && (
           <View style={styles.track}>
-            <View style={[styles.fill, { width: `${(position / duration) * 100}%` }]} />
+            <View style={[styles.waveBar, styles.waveBar1]} />
+            <View style={[styles.waveBar, styles.waveBar2]} />
+            <View style={[styles.waveBar, styles.waveBar3]} />
           </View>
         )}
       </View>
@@ -131,23 +170,27 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     flex: 1,
-    gap: 4,
+    gap: 6,
   },
-  timeLabel: {
+  label: {
     color: Space.textSecondary,
     fontSize: 12,
   },
-  timeLabelMuted: {
+  labelMuted: {
     color: Space.textMuted,
   },
   track: {
-    height: 2,
-    backgroundColor: Space.cardBorder,
-    borderRadius: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 3,
+    height: 12,
   },
-  fill: {
-    height: 2,
+  waveBar: {
+    width: 3,
     backgroundColor: Space.accent,
-    borderRadius: 1,
+    borderRadius: 2,
   },
+  waveBar1: { height: 6 },
+  waveBar2: { height: 12 },
+  waveBar3: { height: 8 },
 });
