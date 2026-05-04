@@ -3,7 +3,6 @@ import { CultureKey, SkyObject } from '../data/anchorObjects';
 import { getAllStoriesForObject, saveStory, StoryRow } from '../services/database';
 import { fetchFromFirebase, generateWithAI } from '../services/storyCache';
 
-// TODO: store the API key in a .env file and expose via expo-constants
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '';
 
 interface StoryState {
@@ -47,6 +46,10 @@ export function useStory(obj: SkyObject): StoryState & {
 
     if (result) {
       const newRow: StoryRow = { objectId: obj.id, culture, ...result };
+
+      // Persist to local DB so the story survives app restarts
+      saveStory(obj.id, culture, result.title, result.body);
+
       setState((s) => ({
         ...s,
         fetching: false,

@@ -21,6 +21,9 @@ const CATEGORY_ICONS: Record<string, string> = {
   planet: '◉',
 };
 
+// Approx characters that fit in 6 lines at font-size 14 / line-height 22
+const PREVIEW_LENGTH = 380;
+
 interface Props {
   object: VisibleSkyObject;
   onDeepDive?: (objectId: string) => void;
@@ -31,16 +34,24 @@ export function StoryCard({ object, onDeepDive }: Props) {
   const [selectedCulture, setSelectedCulture] = useState<CultureKey>(
     object.cultures[0],
   );
+  const [expanded, setExpanded] = useState(false);
   const { stories, loading, fetching, getOrFetchStory } = useStory(object);
 
   const story = stories[selectedCulture];
 
   function handleCultureSelect(culture: CultureKey) {
     setSelectedCulture(culture);
+    setExpanded(false); // collapse when switching culture
     getOrFetchStory(culture);
   }
 
   const prominenceDots = '★'.repeat(object.prominenceStars) + '☆'.repeat(5 - object.prominenceStars);
+
+  const bodyText = story?.body ?? '';
+  const isTruncatable = bodyText.length > PREVIEW_LENGTH;
+  const displayBody = expanded || !isTruncatable
+    ? bodyText
+    : bodyText.slice(0, PREVIEW_LENGTH).trimEnd() + '…';
 
   return (
     <View style={styles.card}>
@@ -69,9 +80,18 @@ export function StoryCard({ object, onDeepDive }: Props) {
         ) : story ? (
           <>
             <Text style={styles.storyTitle}>{story.title}</Text>
-            <Text style={styles.storyBody} numberOfLines={6}>
-              {story.body}
-            </Text>
+            <Text style={styles.storyBody}>{displayBody}</Text>
+            {isTruncatable && (
+              <TouchableOpacity
+                onPress={() => setExpanded((e) => !e)}
+                activeOpacity={0.7}
+                style={styles.expandButton}
+              >
+                <Text style={styles.expandLabel}>
+                  {expanded ? 'Show less ↑' : 'Read more ↓'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </>
         ) : (
           <>
@@ -190,6 +210,15 @@ const styles = StyleSheet.create({
     color: Space.text,
     fontSize: 14,
     lineHeight: 22,
+  },
+  expandButton: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  expandLabel: {
+    color: Space.accent,
+    fontSize: 13,
+    fontWeight: '600',
   },
   hookText: {
     color: Space.textSecondary,
