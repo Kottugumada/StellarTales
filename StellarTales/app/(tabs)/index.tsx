@@ -65,7 +65,7 @@ export default function TonightScreen() {
           ListHeaderComponent={<Header date={new Date()} locationDenied={locationDenied} />}
           ListEmptyComponent={<EmptyView />}
           renderItem={({ item }) => (
-            <StoryCard object={item} onDeepDive={(id) => console.log('Deep dive:', id)} />
+            <StoryCard object={item} />
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={styles.listContent}

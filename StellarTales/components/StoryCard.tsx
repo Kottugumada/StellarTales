@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { CultureKey } from '../data/anchorObjects';
 import { VisibleSkyObject } from '../services/skyEngine';
 import { useStory } from '../hooks/useStory';
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function StoryCard({ object, onDeepDive }: Props) {
+  const router = useRouter();
   const [selectedCulture, setSelectedCulture] = useState<CultureKey>(
     object.cultures[0],
   );
@@ -100,7 +102,10 @@ export function StoryCard({ object, onDeepDive }: Props) {
       <View style={styles.actions}>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => onDeepDive?.(object.id)}
+          onPress={() => {
+            onDeepDive?.(object.id);
+            router.push(`/object/${object.id}`);
+          }}
           activeOpacity={0.8}
         >
           <Text style={styles.actionLabel}>Go deeper ↗</Text>
