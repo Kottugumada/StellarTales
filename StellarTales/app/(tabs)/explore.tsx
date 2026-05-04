@@ -5,6 +5,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -82,17 +83,32 @@ type ListItem =
 
 export default function ExploreScreen() {
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [query,  setQuery]  = useState('');
 
   const listItems = useMemo<ListItem[]>(() => {
+    const q = query.trim().toLowerCase();
+
+    // Search mode: flat list matching name/subtitle/hookText, ignoring category filter
+    if (q) {
+      return ANCHOR_OBJECTS
+        .filter((o) =>
+          o.name.toLowerCase().includes(q) ||
+          o.subtitle.toLowerCase().includes(q) ||
+          o.hookText.toLowerCase().includes(q),
+        )
+        .map((o) => ({ type: 'object' as const, data: o, key: o.id }));
+    }
+
+    // Category filter: flat list
     if (filter !== 'all') {
       return ANCHOR_OBJECTS.filter((o) => o.category === filter).map((o) => ({
-        type: 'object',
+        type: 'object' as const,
         data: o,
         key: o.id,
       }));
     }
 
-    // Grouped view — one section header per category, in display order
+    // All: grouped by category in display order
     const order: ObjectCategory[] = ['planet', 'constellation', 'star', 'deep_sky'];
     const items: ListItem[] = [];
     for (const cat of order) {
@@ -104,7 +120,7 @@ export default function ExploreScreen() {
       }
     }
     return items;
-  }, [filter]);
+  }, [filter, query]);
 
   const counts = useMemo(() => ({
     all: ANCHOR_OBJECTS.length,
@@ -125,8 +141,29 @@ export default function ExploreScreen() {
         <Text style={styles.screenSubtitle}>The complete sky catalogue</Text>
       </View>
 
-      {/* Filter chips */}
-      <ScrollView
+      {/* Search bar */}
+      <View style={styles.searchRow}>
+        <Text style={styles.searchIcon}>⌕</Text>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search stars, myths, constellations…"
+          placeholderTextColor={Space.textMuted}
+          value={query}
+          onChangeText={setQuery}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+        {query.length > 0 && (
+          <TouchableOpacity onPress={() => setQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Text style={styles.clearIcon}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Filter chips — hidden while searching */}
+      {!query && <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filtersRow}
@@ -150,7 +187,7 @@ export default function ExploreScreen() {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </ScrollView>}
 
       {/* Object list */}
       <FlatList<ListItem>
@@ -165,8 +202,16 @@ export default function ExploreScreen() {
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         ItemSeparatorComponent={({ leadingItem }) =>
           leadingItem?.type === 'header' ? null : <View style={styles.separator} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>✦</Text>
+            <Text style={styles.emptyTitle}>No results</Text>
+            <Text style={styles.emptyBody}>Try a different name or myth keyword.</Text>
+          </View>
         }
       />
     </View>
@@ -180,6 +225,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Space.background,
   },
+
+  // Search
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: Space.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Space.cardBorder,
+    gap: 8,
+  },
+  searchIcon: {
+    color: Space.textMuted,
+    fontSize: 18,
+  },
+  searchInput: {
+    flex: 1,
+    color: Space.text,
+    fontSize: 14,
+    padding: 0,
+  },
+  clearIcon: {
+    color: Space.textMuted,
+    fontSize: 13,
+    paddingHorizontal: 2,
+  },
+
+  // Empty search state
+  emptyState: {
+    alignItems: 'center',
+    paddingTop: 60,
+    gap: 8,
+  },
+  emptyIcon:  { color: Space.accent, fontSize: 32 },
+  emptyTitle: { color: Space.text, fontSize: 16, fontWeight: '600' },
+  emptyBody:  { color: Space.textSecondary, fontSize: 13, textAlign: 'center' },
 
   // Header
   header: {
