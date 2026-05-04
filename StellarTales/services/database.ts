@@ -18,29 +18,36 @@ export interface AudioRow {
 
 const DB_NAME = 'stellartales.db';
 
+// Bump this whenever assets/stellartales.db is rebuilt (node scripts/buildDatabase.js).
+// A mismatch forces existing installs to re-copy the new database.
+const DB_VERSION = 'v2';
+
 let _db: SQLite.SQLiteDatabase | null = null;
 
 // ── Init ───────────────────────────────────────────────────────────────────
 
 /**
- * On first launch: copies the pre-populated stellartales.db from the app
- * bundle to the device's writable SQLite directory.
- * On subsequent launches: no-ops (the file already exists).
+ * Copies the pre-populated stellartales.db from the app bundle to the
+ * device's writable SQLite directory on first launch, or whenever DB_VERSION
+ * changes (i.e. after a stories rebuild). No-ops on subsequent launches.
  * Must be awaited before any DB reads or writes.
  */
 export async function initDatabase(): Promise<void> {
   if (_db) return; // already initialized this session
 
-  const sqliteDir = new Directory(Paths.document, 'SQLite');
-  const dbFile    = new File(sqliteDir, DB_NAME);
+  const sqliteDir   = new Directory(Paths.document, 'SQLite');
+  const dbFile      = new File(sqliteDir, DB_NAME);
+  // Version marker — an empty file whose name encodes the current DB version.
+  // If it's absent the DB is either missing or from a previous build.
+  const versionFile = new File(sqliteDir, `${DB_NAME}.${DB_VERSION}`);
 
-  if (!dbFile.exists) {
-    // Ensure the SQLite directory exists
+  const needsCopy = !dbFile.exists || !versionFile.exists;
+
+  if (needsCopy) {
     if (!sqliteDir.exists) {
       sqliteDir.create({ intermediates: true });
     }
 
-    // Resolve the bundled .db asset and copy it into the writable path
     const asset = Asset.fromModule(require('../assets/stellartales.db'));
     await asset.downloadAsync();
 
@@ -48,8 +55,11 @@ export async function initDatabase(): Promise<void> {
       throw new Error('stellartales.db asset could not be resolved');
     }
 
-    const assetFile = new File(asset.localUri);
-    assetFile.copy(dbFile);
+    // Copy (overwrites any stale DB from a previous version)
+    new File(asset.localUri).copy(dbFile);
+
+    // Write version marker so we skip the copy on next launch
+    versionFile.create({ overwrite: true });
   }
 
   _db = SQLite.openDatabaseSync(DB_NAME);

@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     flex: 1,
+    marginRight: 8,
   },
   categoryIcon: {
     fontSize: 22,
