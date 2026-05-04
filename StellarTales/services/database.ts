@@ -55,7 +55,8 @@ export async function initDatabase(): Promise<void> {
       throw new Error('stellartales.db asset could not be resolved');
     }
 
-    // Copy (overwrites any stale DB from a previous version)
+    // Remove stale DB if present (copy() throws if destination exists)
+    if (dbFile.exists) dbFile.delete();
     new File(asset.localUri).copy(dbFile);
 
     // Write version marker so we skip the copy on next launch
