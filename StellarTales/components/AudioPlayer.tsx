@@ -12,7 +12,9 @@
  */
 
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
+// expo-file-system v19 deprecated the classic API at the top-level import.
+// We keep using it via the /legacy path for the base64 binary write needed here.
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Speech from 'expo-speech';
 import React, { useEffect, useRef, useState } from 'react';
 import {
