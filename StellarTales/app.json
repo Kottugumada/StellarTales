@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "StellarTales uses your location to show which stars and constellations are visible in your sky tonight.",
-        "NSMicrophoneUsageDescription": "StellarTales uses the microphone to record your voice for personalized story narration."
+        "NSMicrophoneUsageDescription": "StellarTales uses the microphone to record your voice for personalized story narration.",
+        "NSCameraUsageDescription": "StellarTales uses the camera to overlay star and constellation guides on your live sky view."
       }
     },
     "android": {
@@ -29,7 +30,8 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "CAMERA"
       ]
     },
     "web": {
@@ -41,7 +43,8 @@
       "expo-router",
       "expo-font",
       "expo-web-browser",
-      "expo-asset"
+      "expo-asset",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true

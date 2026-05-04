@@ -130,8 +130,12 @@ export function StoryCard({ object, onDeepDive }: Props) {
         >
           <Text style={styles.actionLabel}>Go deeper ↗</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, styles.actionButtonMuted]} disabled>
-          <Text style={[styles.actionLabel, styles.actionLabelMuted]}>Point at sky ▲</Text>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => router.push(`/ar/${object.id}`)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.actionLabel}>Point at sky ▲</Text>
         </TouchableOpacity>
       </View>
     </View>

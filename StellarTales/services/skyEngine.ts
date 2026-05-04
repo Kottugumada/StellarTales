@@ -110,6 +110,24 @@ function prominenceStars(obj: SkyObject): number {
 
 const ALTITUDE_THRESHOLD = 10; // degrees above horizon
 
+/**
+ * Returns the altitude and azimuth for a single object at a given time/location,
+ * regardless of visibility (no altitude threshold). Returns null for objects
+ * with no computable position (planets not in the engine, etc.).
+ */
+export function getObjectPosition(
+  objectId: string,
+  lat: number,
+  lon: number,
+  date: Date,
+): { altitude: number; azimuth: number } | null {
+  const obj = ANCHOR_OBJECTS.find((o) => o.id === objectId);
+  if (!obj) return null;
+  if (PLANET_IDS.has(obj.id)) return planetAltAz(obj.id, lat, lon, date);
+  if (obj.ra !== null && obj.dec !== null) return fixedObjectAltAz(obj.ra, obj.dec, lat, lon, date);
+  return null;
+}
+
 export function getVisibleObjects(lat: number, lon: number, date: Date): VisibleSkyObject[] {
   const results: VisibleSkyObject[] = [];
 

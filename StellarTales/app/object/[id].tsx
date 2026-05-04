@@ -164,6 +164,16 @@ export default function ObjectDetailScreen() {
           <AudioPlayer text={story?.body ?? null} />
         </View>
 
+        {/* Point at sky */}
+        <TouchableOpacity
+          style={styles.arButton}
+          onPress={() => router.push(`/ar/${object.id}`)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.arButtonLabel}>Point at sky  ▲</Text>
+          <Text style={styles.arButtonSub}>Use your camera as a sky finder</Text>
+        </TouchableOpacity>
+
         <View style={styles.bottomPad} />
       </ScrollView>
     </View>
@@ -374,6 +384,28 @@ const styles = StyleSheet.create({
     borderColor: Space.cardBorder,
     padding: 16,
     marginBottom: 12,
+  },
+
+  // AR button
+  arButton: {
+    backgroundColor: Space.chipActive,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: Space.accent,
+    padding: 18,
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 12,
+  },
+  arButtonLabel: {
+    color: Space.accent,
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  arButtonSub: {
+    color: Space.textSecondary,
+    fontSize: 12,
   },
 
   bottomPad: {
