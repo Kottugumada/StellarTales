@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // Builds assets/stellartales.db — a pre-populated SQLite file bundled with the app.
-// Run: node scripts/buildDatabase.js
+// Run: npm install better-sqlite3 --no-save && node scripts/buildDatabase.js
 // The output file is copied to the device on first launch (see services/database.ts).
+// Note: better-sqlite3 is NOT in package.json (it requires native compilation which
+// fails in EAS cloud builds). Install it locally with --no-save when you need to
+// rebuild the database.
 
 const Database = require('better-sqlite3');
 const fs = require('fs');
