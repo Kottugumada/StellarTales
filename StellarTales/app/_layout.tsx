@@ -1,39 +1,46 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { useEffect, useState } from 'react';
+import { ONBOARDED_KEY } from './onboarding';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [fontsLoaded] = useFonts({});
+  const [ready, setReady] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    if (!fontsLoaded) return;
 
-  if (!loaded) {
-    return null;
-  }
+    // Check onboarding flag while splash is still visible.
+    // Stack is already mounted (we don't gate on ready), so router.replace is safe.
+    AsyncStorage.getItem(ONBOARDED_KEY).then((flag) => {
+      setReady(true);
+      SplashScreen.hideAsync();
+      if (!flag) {
+        router.replace('/onboarding');
+      }
+    });
+  }, [fontsLoaded]);
+
+  // Keep splash up until fonts are done (AsyncStorage check runs in parallel)
+  if (!fontsLoaded) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DarkTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)"      options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding"  options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="object/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="ar/[id]"     options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </ThemeProvider>
   );
 }

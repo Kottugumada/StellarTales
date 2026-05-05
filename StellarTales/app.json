@@ -2,40 +2,55 @@
   "expo": {
     "name": "StellarTales",
     "slug": "StellarTales",
+    "scheme": "stellartales",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#080B1A"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "StellarTales uses your location to show which stars and constellations are visible in your sky tonight.",
+        "NSMicrophoneUsageDescription": "StellarTales uses the microphone to record your voice for personalized story narration.",
+        "NSCameraUsageDescription": "StellarTales uses the camera to overlay star and constellation guides on your live sky view."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#080B1A"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "RECORD_AUDIO",
+        "CAMERA"
+      ]
     },
     "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
+      "expo-sqlite",
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+      "expo-font",
+      "expo-web-browser",
+      "expo-asset",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "assets": [
+      "./assets/stellartales.db"
+    ]
   }
 }

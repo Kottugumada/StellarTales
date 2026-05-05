@@ -1,26 +1,33 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
 export const Colors = {
   light: {
     text: '#11181C',
     background: '#fff',
-    tint: tintColorLight,
+    tint: '#4A90D9',
     icon: '#687076',
     tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    tabIconSelected: '#4A90D9',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    text: '#E8EDF5',
+    background: '#080B1A',
+    tint: '#C9A84C',
+    icon: '#8899BB',
+    tabIconDefault: '#8899BB',
+    tabIconSelected: '#C9A84C',
   },
+};
+
+export const Space = {
+  background: '#080B1A',
+  card: '#0F1329',
+  cardBorder: '#1E2A4A',
+  accent: '#C9A84C',
+  accentBright: '#FFD700',
+  text: '#E8EDF5',
+  textSecondary: '#8899BB',
+  textMuted: '#4A5568',
+  chip: '#1A2035',
+  chipActive: '#2A3A60',
+  aurora: '#4A90D9',
+  danger: '#FF6B6B',
 };
