@@ -17,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.stellartales.app",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "NSLocationWhenInUseUsageDescription": "StellarTales uses your location to show which stars and constellations are visible in your sky tonight.",
         "NSMicrophoneUsageDescription": "StellarTales uses the microphone to record your voice for personalized story narration.",
         "NSCameraUsageDescription": "StellarTales uses the camera to overlay star and constellation guides on your live sky view."
