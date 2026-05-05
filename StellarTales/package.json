@@ -8,7 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:db": "node scripts/buildDatabase.js",
-    "postinstall": "node -e \"const fs=require('fs'),path=require('path');const d='node_modules/@expo/metro/node_modules';if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});const link=path.join(d,'metro-runtime'),target='../../../metro-runtime';try{fs.symlinkSync(target,link)}catch(e){if(e.code!=='EEXIST')throw e};\""
+    "postinstall": "node -e \"const fs=require('fs'),path=require('path');const d='node_modules/@expo/metro/node_modules';try{if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});const link=path.join(d,'metro-runtime'),target='../../../metro-runtime';try{fs.symlinkSync(target,link)}catch(e){if(e.code!=='EEXIST')throw e}}catch(e){}\""
   },
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
