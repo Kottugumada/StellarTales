@@ -33,7 +33,10 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "RECORD_AUDIO",
-        "CAMERA"
+        "CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -54,6 +57,13 @@
     },
     "assets": [
       "./assets/stellartales.db"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "08f33f2d-d510-4e1b-b461-24027614bfb2"
+      }
+    },
+    "owner": "kottugumada"
   }
 }
