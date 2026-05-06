@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ANCHOR_OBJECTS, ObjectCategory, SkyObject } from '../../data/anchorObjects';
 import { Space } from '../../constants/Colors';
 
@@ -82,6 +83,7 @@ type ListItem =
   | { type: 'object'; data: SkyObject; key: string };
 
 export default function ExploreScreen() {
+  const insets = useSafeAreaInsets();
   const [filter, setFilter] = useState<FilterKey>('all');
   const [query,  setQuery]  = useState('');
 
@@ -135,7 +137,7 @@ export default function ExploreScreen() {
       <StatusBar barStyle="light-content" backgroundColor={Space.background} />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Text style={styles.starDecor}>✦ ✧ ✦ ✧ ✦</Text>
         <Text style={styles.screenTitle}>Explore</Text>
         <Text style={styles.screenSubtitle}>The complete sky catalogue</Text>
@@ -268,7 +270,6 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
     alignItems: 'center',

@@ -7,17 +7,19 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSkyObjects } from '../../hooks/useSkyObjects';
 import { StoryCard } from '../../components/StoryCard';
 import { VisibleSkyObject } from '../../services/skyEngine';
 import { Space } from '../../constants/Colors';
 
 function Header({ date, locationDenied }: { date: Date; locationDenied: boolean }) {
+  const insets = useSafeAreaInsets();
   const dateStr = date.toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric',
   });
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
       <Text style={styles.starDecor}>✦ ✧ ✦ ✧ ✦</Text>
       <Text style={styles.screenTitle}>Tonight's Sky</Text>
       <Text style={styles.dateLabel}>{dateStr}</Text>
@@ -80,7 +82,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Space.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, marginTop: 80 },
   listContent: { paddingBottom: 40 },
-  header: { paddingTop: 60, paddingBottom: 28, paddingHorizontal: 16, alignItems: 'center', gap: 6 },
+  header: { paddingBottom: 28, paddingHorizontal: 16, alignItems: 'center', gap: 6 },
   starDecor: { color: Space.accent, fontSize: 12, letterSpacing: 4, marginBottom: 4 },
   screenTitle: { color: Space.text, fontSize: 28, fontWeight: '700', letterSpacing: 1 },
   dateLabel: { color: Space.textSecondary, fontSize: 13 },
