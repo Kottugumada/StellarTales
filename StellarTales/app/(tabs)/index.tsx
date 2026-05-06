@@ -7,19 +7,18 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSkyObjects } from '../../hooks/useSkyObjects';
 import { StoryCard } from '../../components/StoryCard';
 import { VisibleSkyObject } from '../../services/skyEngine';
 import { Space } from '../../constants/Colors';
 
 function Header({ date, locationDenied }: { date: Date; locationDenied: boolean }) {
-  const insets = useSafeAreaInsets();
   const dateStr = date.toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric',
   });
   return (
-    <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+    <View style={styles.header}>
       <Text style={styles.starDecor}>✦ ✧ ✦ ✧ ✦</Text>
       <Text style={styles.screenTitle}>Tonight's Sky</Text>
       <Text style={styles.dateLabel}>{dateStr}</Text>
@@ -54,9 +53,10 @@ function EmptyView() {
 
 export default function TonightScreen() {
   const { objects, loading, locationDenied } = useSkyObjects();
+  const { bottom } = useSafeAreaInsets();
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView edges={['top']} style={styles.screen}>
       <StatusBar barStyle="light-content" backgroundColor={Space.background} />
       {loading ? (
         <LoadingView />
@@ -70,19 +70,19 @@ export default function TonightScreen() {
             <StoryCard object={item} />
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: bottom + 80 }]}
           showsVerticalScrollIndicator={false}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Space.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, marginTop: 80 },
-  listContent: { paddingBottom: 40 },
-  header: { paddingBottom: 28, paddingHorizontal: 16, alignItems: 'center', gap: 6 },
+  listContent: { paddingBottom: 0 },
+  header: { paddingTop: 12, paddingBottom: 28, paddingHorizontal: 16, alignItems: 'center', gap: 6 },
   starDecor: { color: Space.accent, fontSize: 12, letterSpacing: 4, marginBottom: 4 },
   screenTitle: { color: Space.text, fontSize: 28, fontWeight: '700', letterSpacing: 1 },
   dateLabel: { color: Space.textSecondary, fontSize: 13 },

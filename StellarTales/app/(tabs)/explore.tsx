@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ANCHOR_OBJECTS, ObjectCategory, SkyObject } from '../../data/anchorObjects';
 import { Space } from '../../constants/Colors';
 
@@ -83,7 +83,7 @@ type ListItem =
   | { type: 'object'; data: SkyObject; key: string };
 
 export default function ExploreScreen() {
-  const insets = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   const [filter, setFilter] = useState<FilterKey>('all');
   const [query,  setQuery]  = useState('');
 
@@ -133,11 +133,11 @@ export default function ExploreScreen() {
   }), []);
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView edges={['top']} style={styles.screen}>
       <StatusBar barStyle="light-content" backgroundColor={Space.background} />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <View style={styles.header}>
         <Text style={styles.starDecor}>✦ ✧ ✦ ✧ ✦</Text>
         <Text style={styles.screenTitle}>Explore</Text>
         <Text style={styles.screenSubtitle}>The complete sky catalogue</Text>
@@ -202,7 +202,7 @@ export default function ExploreScreen() {
             <ObjectRow item={item.data} />
           )
         }
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: bottom + 80 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ItemSeparatorComponent={({ leadingItem }) =>
@@ -216,7 +216,7 @@ export default function ExploreScreen() {
           </View>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
+    paddingTop: 12,
     paddingBottom: 16,
     paddingHorizontal: 20,
     alignItems: 'center',
@@ -295,6 +296,8 @@ const styles = StyleSheet.create({
   // Filters
   filtersScroll: {
     flexGrow: 0,
+    flexShrink: 0,
+    minHeight: 50,
     marginBottom: 4,
   },
   filtersRow: {
